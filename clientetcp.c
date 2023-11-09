@@ -57,6 +57,16 @@ int main(int argc, char const *argv[])
 	{
 		serverADDR.sin_addr.s_addr = ((struct sockaddr_in *)res->ai_addr)->sin_addr.s_addr;
 	}
+	freeaddrinfo(res);
+
+	servaddr_in.sin_port = htons(PUERTO);
+
+	if (connect(s, (const struct sockaddr *)&servaddr_in, sizeof(struct sockaddr_in)) == -1)
+	{
+		perror(argv[0]);
+		fprintf(stderr, "%s: unable to connect to remote\n", argv[0]);
+		exit(1);
+	}
 
 	return 0;
 }
