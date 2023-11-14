@@ -24,8 +24,7 @@ void handler(int sigNum) {
 int main(int argc, char const *argv[]) {
     struct sockaddr_in dirLocal;
     struct sockaddr_in dirRemota;
-    struct addrinfo hints, * resultados;
-    char solicitud[MAX], respuesta[MAX];
+    char respuesta[MAX], solicitud[MAX];
     signal(SIGINT, handler);
 
     int s = socket(AF_INET, SOCK_DGRAM, 0);
@@ -39,25 +38,7 @@ int main(int argc, char const *argv[]) {
 
     dirLocal.sin_family = AF_INET;
     dirLocal.sin_addr.s_addr = htonl(INADDR_ANY);
-    dirLocal.sin_port = htons(0);
-
-    memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_INET;
-
-    char hostname[1024];
-    gethostname(hostname, sizeof(hostname));
-
-    if(getaddrinfo(hostname, NULL, &hints, &resultados) != 0) {
-        perror("Error al obtener la direccion");
-        close(s);
-        return 1;
-    }
-
-    dirRemota.sin_family = AF_INET;
-    dirRemota.sin_addr = ((struct sockaddr_in *) resultados->ai_addr)->sin_addr;
-    dirRemota.sin_port = htons(2050);
-
-    freeaddrinfo(resultados);
+    dirLocal.sin_port = htons(2050);
 
     if(bind(s, (struct sockaddr *)&dirLocal, sizeof(struct sockaddr_in)) == -1) {
         perror("Error al hacer bind");
@@ -68,23 +49,21 @@ int main(int argc, char const *argv[]) {
     socklen_t tamDir = sizeof(struct sockaddr_in);
 
     while(1) {
-        printf("Introduce una solicitud: ");
-        fgets(solicitud, MAX, stdin);
-
-        if(sendto(s, solicitud, sizeof(char) * MAX, 0, (struct sockaddr *)&dirRemota, sizeof(dirRemota)) == -1) {
-            perror("Error al enviar la solicitud");
-            close(s);
-            return 1;
-        }
-
-
         if(recvfrom(s, respuesta, (sizeof(char) * MAX), 0, (struct sockaddr *)&dirRemota, &tamDir) == -1) {
             perror("Error al recibir la respuesta");
             close(s);
             return 1;
         }
+        printf("Respuesta: %s\n", respuesta);
 
-        printf("Respuesta recibida: %s\n", respuesta);
+
+        strcpy(solicitud, "OK");
+
+        if(sendto(s, solicitud, (sizeof(char) * MAX), 0, (struct sockaddr *)&dirRemota, sizeof(dirRemota)) == -1) {
+            perror("Error al enviar la solicitud");
+            close(s);
+            return 1;
+        }
     }
 
     return 0;
