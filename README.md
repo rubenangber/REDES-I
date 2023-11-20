@@ -260,15 +260,36 @@ for(;;) {
 ```
 
 ### Funciones para tarbajar con cadena de caracteres
-strcpy(cad1, cad2); //Copia cad2 en cad1
-strcat(cad1, cad2); //Añade cad2 al final de cad1
-sprintf(cad1,"...",...) //Igual que printf pero en lugar de sacarlo por pantalla lo guarda en cad1
-strcmp(cad1,cad2); == 0 //Si son iguales
-´´´
+strcpy(cad1, cad2); //Copia cad2 en cad1<br>
+strcat(cad1, cad2); //Añade cad2 al final de cad1<br>
+sprintf(cad1,"...",...) //Igual que printf pero en lugar de sacarlo por pantalla lo guarda en cad1<br>
+strcmp(cad1,cad2); == 0 //Si son iguales<br>
+strncmp(cad1,cad2,num); == 0 //Si son iguales en los primeros num caracteres<br>
+
+```
 char datos[] = "Felipe Lopez 22";
 char * campo;
 campo = strtok(datos, " "); //campo = "Felipe"
 campo = strtok(NULL, " "); //campo = "Lopez"
 campo = strtok(NULL, " "); //campo = "22"
-´´´
+```
+
 atoi(cad); //Devuelve el int que haya en cad
+
+```
+datos = "RESPUESTA 12\r\n";
+campo = strtok(datos, "\r\n"); 
+if(strncmp(campo, "RESPUESTA", 9) == 0) {
+    campo = strtok(datos, " "); //campo = "RESPUESTA"
+    campo = strtok(NULL, " "); //campo = "12"
+    atoi(campo); //12
+}
+```
+
+```
+#include<time.h>
+long timevar;
+time(&timevar);
+printf("El tiempo del sistema es %s\n", ctime(&timevar)); //Dia y hora del sistema
+
+```

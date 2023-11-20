@@ -1,10 +1,3 @@
-/*
-** Fichero: clientetcp.c
-** Autores:
-** Rubén Angoso Berrocal. DNI 70958754M
-** Óscar Hernández Hernández. DNI 70918137Y
-*/
-
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/errno.h>
@@ -35,7 +28,7 @@ int main(int argc, char const *argv[]) {
     char solicitud[MAX], respuesta[MAX];
     signal(SIGINT, handler);
 
-    int s = socket(AF_INET, SOCK_DGRAM, 0);
+    s = socket(AF_INET, SOCK_DGRAM, 0);
     if(s == -1) {
         perror("Error al crear el socket");
         return 1;
@@ -77,13 +70,14 @@ int main(int argc, char const *argv[]) {
     while(1) {
         printf("Introduce una solicitud: ");
         fgets(solicitud, MAX, stdin);
+        solicitud[strcspn(solicitud, "\n")] = '\0';
+        strcat(solicitud, "\r\n");
 
         if(sendto(s, solicitud, sizeof(char) * MAX, 0, (struct sockaddr *)&dirRemota, sizeof(dirRemota)) == -1) {
             perror("Error al enviar la solicitud");
             close(s);
             return 1;
         }
-
 
         if(recvfrom(s, respuesta, (sizeof(char) * MAX), 0, (struct sockaddr *)&dirRemota, &tamDir) == -1) {
             perror("Error al recibir la respuesta");
@@ -92,6 +86,9 @@ int main(int argc, char const *argv[]) {
         }
 
         printf("Respuesta recibida: %s\n", respuesta);
+        if(strcmp(respuesta, "Conexion terminada") == 0 || strcmp(respuesta, "ACIERTO") == 0) {
+            return 0;
+        }
     }
 
     return 0;
