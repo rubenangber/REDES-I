@@ -1,15 +1,12 @@
 CC = gcc
 
-all: clienteudp clientetcp servidor
+all: cliente servidor
 
-clienteudp: clienteudp.c
-	$(CC) -o clienteudp clienteudp.c
-
-clientetcp: clientetcp.c
-	$(CC) -o clientetcp clientetcp.c
+cliente: cliente.c
+	$(CC) -o cliente cliente.c
 
 servidor: servidor.c
 	$(CC) -o servidor servidor.c
 
 clean:
-	rm -f clienteudp clientetcp servidor
+	rm -f cliente servidor

@@ -96,6 +96,7 @@ int main(int argc, char const *argv[]) {
             switch(fork()) {
                 case -1: 
                     //Error
+                    perror("Error al crear el proceso hijo");
                     return 1;
                 break;
                 case 0: 
@@ -149,23 +150,19 @@ void generarRespuesta(char *m, char *respuesta) {
         strcpy(respuesta, "250 pregunta#");
         flagHola = 1;
         return;
-    }
-    if (flagHola == 0) {
+    } else if (flagHola == 0) {
         strcpy(respuesta, "500 Error de sintaxis");
         return;
-    }
-
-    if (strcmp(m, "ADIOS\r\n") == 0 && flagHola == 1) {
+    } else if (strcmp(m, "ADIOS\r\n") == 0 && flagHola == 1) {
         strcpy(respuesta, "221 Cerrando el servicio");
         i = 0;
         return;
-    }
-    if (strcmp(m, "+\r\n") == 0 && flagHola == 1) {
+    } else if (strcmp(m, "+\r\n") == 0 && flagHola == 1) {
         strcpy(respuesta, "250 pregunta2#");
         return;
     }
     char *campo = strtok(m, "\r\n");
-    if (strncmp(campo, "RESPUESTA ", 10 && flagHola == 1) == 0) {
+    if ((strncmp(campo, "RESPUESTA ", 10) == 0) && flagHola == 1) {
         campo = strtok(campo, " ");
         campo = strtok(NULL, " ");
         int num = atoi(campo);
@@ -180,6 +177,9 @@ void generarRespuesta(char *m, char *respuesta) {
             i = 0;
             return;
         }
+    } else {
+        strcpy(respuesta, "500 Error de sintaxis");
+        return;
     }
     strcpy(respuesta, "500 Error de sintaxis");
     return;
