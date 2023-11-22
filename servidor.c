@@ -19,12 +19,12 @@ void handler(int sigNum) {
     close(sUDP);
     close(sTCP);
     close(sNuevo);
-    exit(0);
+    return;
 }
 int flagHola = 0;
 int i = 1;
 
-void generarRespuesta(char *m, char *respuesta, int *i, int *flagHola);
+void generarRespuesta(char *m, char *respuesta);
 
 int main(int argc, char const *argv[]) {
     fd_set readmusk;
@@ -82,7 +82,7 @@ int main(int argc, char const *argv[]) {
     if(sUDP > s_mayor) {
         s_mayor = sUDP;
     }
-    
+
     while(i) {
         FD_ZERO(&readmusk);
         FD_SET(sTCP, &readmusk);
@@ -91,8 +91,7 @@ int main(int argc, char const *argv[]) {
             //Error
             return 1;
         }
-        if(FD_ISSET(sTCP, &readmusk)) {
-            //Socket TCP activo
+        if(FD_ISSET(sTCP, &readmusk)) { //TCP
             sNuevo = accept(sTCP,(struct sockaddr *) &clientnaddr, &tamDir);
             switch(fork()) {
                 case -1: 
@@ -109,7 +108,7 @@ int main(int argc, char const *argv[]) {
                         }
                         printf("Respuesta: %s", respuesta);
 
-                        generarRespuesta(respuesta, solicitud, &i, &flagHola);
+                        generarRespuesta(respuesta, solicitud);
 
                         if(send(sNuevo, solicitud, strlen(solicitud), 0) == -1) {
                             perror("Error al enviar la respuesta");
@@ -122,6 +121,7 @@ int main(int argc, char const *argv[]) {
                     close(sNuevo);
             }
         }
+        //UDP
         if(FD_ISSET(sUDP, &readmusk)) {
             while(i) {
                 if(recvfrom(sUDP, respuesta, (sizeof(char) * MAX), 0, (struct sockaddr *)&clientnaddr, &tamDir) == -1) {
@@ -131,7 +131,7 @@ int main(int argc, char const *argv[]) {
                 }
                 printf("Respuesta: %s", respuesta);
 
-                generarRespuesta(respuesta, solicitud, &i, &flagHola);
+                generarRespuesta(respuesta, solicitud);
 
                 if(sendto(sUDP, solicitud, (sizeof(char) * MAX), 0, (struct sockaddr *)&clientnaddr, sizeof(clientnaddr)) == -1) {
                     perror("Error al enviar la solicitud");
@@ -144,38 +144,43 @@ int main(int argc, char const *argv[]) {
     return 0;
 }
 
-void generarRespuesta(char *m, char *respuesta, int *i, int *flagHola) {
+void generarRespuesta(char *m, char *respuesta) {
     if (strcmp(m, "HOLA\r\n") == 0) {
-        strcpy(respuesta, "Conexion establecida");
-        *flagHola = 1;
+        strcpy(respuesta, "250 pregunta#");
+        flagHola = 1;
         return;
     }
-    if (strcmp(m, "ADIOS\r\n") == 0 && *flagHola == 1) {
-        strcpy(respuesta, "Conexion terminada");
-        *i = 0;
+    if (flagHola == 0) {
+        strcpy(respuesta, "500 Error de sintaxis");
         return;
     }
-    if (strcmp(m, "+\r\n") == 0 && *flagHola == 1) {
-        strcpy(respuesta, "Pregunta 2");
+
+    if (strcmp(m, "ADIOS\r\n") == 0 && flagHola == 1) {
+        strcpy(respuesta, "221 Cerrando el servicio");
+        i = 0;
+        return;
+    }
+    if (strcmp(m, "+\r\n") == 0 && flagHola == 1) {
+        strcpy(respuesta, "250 pregunta2#");
         return;
     }
     char *campo = strtok(m, "\r\n");
-    if (strncmp(campo, "RESPUESTA ", 10 && *flagHola == 1) == 0) {
+    if (strncmp(campo, "RESPUESTA ", 10 && flagHola == 1) == 0) {
         campo = strtok(campo, " ");
         campo = strtok(NULL, " ");
         int num = atoi(campo);
-        printf("%d\n", num);
         if (num < 50) {
-            strcpy(respuesta, "MAYOR");
+            strcpy(respuesta, "354 MAYOR#");
             return;
         } else if (num > 50) {
-            strcpy(respuesta, "MENOR");
+            strcpy(respuesta, "354 MENOR#");
             return;
         } else if (num == 50) {
-            strcpy(respuesta, "ACIERTO");
-            *i = 0;
+            strcpy(respuesta, "350 ACIERTO");
+            i = 0;
             return;
         }
     }
-    strcpy(respuesta, "Incorrecto");
+    strcpy(respuesta, "500 Error de sintaxis");
+    return;
 }

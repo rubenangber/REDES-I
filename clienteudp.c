@@ -79,7 +79,7 @@ int main(int argc, char const *argv[]) {
             return 1;
         }
 
-        if(recvfrom(s, respuesta, (sizeof(char) * MAX), 0, (struct sockaddr *)&dirRemota, &tamDir) == -1) {
+         if(recvfrom(s, respuesta, (sizeof(char) * MAX), 0, (struct sockaddr *)&dirRemota, &tamDir) == -1) {
             perror("Error al recibir la respuesta");
             close(s);
             return 1;

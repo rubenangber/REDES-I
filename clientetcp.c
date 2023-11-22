@@ -56,6 +56,9 @@ int main(int argc, char const *argv[]) {
             return 1;
         }
 
+        for (int i = 0; i < MAX; i++) {
+            respuesta[i] = '\0';
+        }
         if(recv(s, respuesta, sizeof(char) * MAX, 0) == -1) {
             perror("Error al recibir la respuesta");
             close(s);
