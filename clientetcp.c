@@ -66,7 +66,7 @@ int main(int argc, char const *argv[]) {
         }
 
         printf("Respuesta: %s\n", respuesta);
-        if(strcmp(respuesta, "Conexion terminada") == 0 || strcmp(respuesta, "ACIERTO") == 0) {
+        if(strcmp(respuesta, "221 Cerrando el servicio") == 0 || strcmp(respuesta, "350 ACIERTO") == 0) {
             return 0;
         }
     }
