@@ -1,0 +1,48 @@
+¿Cuánto es 2 + 2?|4
+¿Cuántos continentes hay en el mundo?|7
+¿Cuántos planetas hay en nuestro sistema solar?|8
+¿Cuántos lados tiene un triángulo?|3
+¿Cuántos minutos hay en una hora?|60
+¿Cuántas patas tiene un insecto típico?|6
+¿Cuántos colores conforman el arco iris?|7
+¿Cuántos días tiene un año bisiesto?|366
+¿Cuántos huesos tiene un adulto humano promedio?|206
+¿Cuántos jugadores hay en un equipo de fútbol estándar?|11
+¿Cuántos grados tiene un ángulo recto?|90
+¿Cuántos elementos químicos hay en la tabla periódica?|118
+¿Cuántos lados tiene un cuadrado?|4
+¿Cuántos bits conforman un byte?|8
+¿Cuántos días tiene la semana?|7
+¿Cuántas pulgadas hay en un pie?|12
+¿Cuántos años dura un siglo?|100
+¿Cuántos gramos hay en un kilogramo?|1000
+¿Cuántos vértices tiene un cubo?|8
+¿Cuántos hemisferios tiene la Tierra?|4
+¿Cuántos dientes temporales tiene un niño promedio?|20
+¿Cuántas caras tiene un prisma triangular?|5
+¿Cuántos días tiene el mes de febrero en un año no bisiesto?|28
+¿Cuántos puntos cardinales existen?|4
+¿Cuántos cuartos hay en una hora?|4
+¿Cuántos lados tiene un decágono?|10
+¿Cuántos jugadores hay en un equipo de baloncesto en la cancha al mismo tiempo?|5
+¿Cuántos elementos conforman un cuarteto?|4
+¿Cuántos cuadrados hay en un tablero de ajedrez?|64
+¿Cuántos jugadores hay en un equipo de vóley en la cancha al mismo tiempo?|6
+¿Cuántos bytes hay en un kilobyte (KB)?|1024
+¿Cuántos minutos hay en medio día?|720
+¿Cuántos lados tiene un heptágono?|7
+¿Cuántos elementos conforman un quinteto?|5
+¿Cuántos planetas enanos reconocidos hay en nuestro sistema solar?|5
+¿Cuántos lados tiene un hexágono?|6
+¿Cuántos años dura un lustro?|5
+¿Cuántos minutos tiene una hora y media?|90
+¿Cuántos colores tiene un cubo de Rubik estándar?|6
+¿Cuántas patas tiene un arácnido típico?|8
+¿Cuántos días tiene la primavera en un año no bisiesto?|92
+¿Cuántos estados tiene Estados Unidos?|50
+¿Cuántos años dura un milenio?|1000
+¿Cuántos lados tiene un dodecágono?|12
+¿Cuántos bits se necesitan para representar 64 combinaciones únicas?|6
+¿Cuántos minutos hay en una jornada laboral de 8 horas?|480
+¿Cuántos jugadores hay en un equipo de hockey sobre hielo en la pista al mismo tiempo?|6
+¿Cuántos dígitos tiene el número de seguridad social en Estados Unidos?|9

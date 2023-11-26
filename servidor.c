@@ -11,6 +11,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#define MAX_LINE_LENGTH 256
 #define MAX 1024
 
 int sTCP, sUDP, sNuevo;
@@ -22,9 +23,15 @@ void handler(int sigNum) {
     return;
 }
 int flagHola = 0;
-int i = 1;
+const char *nombreArchivo = "preguntas.txt";
+char *lineaAleatoria;
+char *lineaCopia;
+char *token;
+char *pregunta;
+char *numero;
 
 void generarRespuesta(char *m, char *respuesta);
+char *leerLineaAleatoria(const char *nombreArchivo);
 
 int main(int argc, char const *argv[]) {
     fd_set readmusk;
@@ -83,7 +90,7 @@ int main(int argc, char const *argv[]) {
         s_mayor = sUDP;
     }
 
-    while(i) {
+    while(1) {
         FD_ZERO(&readmusk);
         FD_SET(sTCP, &readmusk);
         FD_SET(sUDP, &readmusk);
@@ -101,7 +108,7 @@ int main(int argc, char const *argv[]) {
                 break;
                 case 0: 
                     close(sTCP);
-                    while (i) {
+                    while (1) {
                         if(recv(sNuevo, respuesta, MAX, 0) == -1) {
                             perror("Error al recibir la respuesta");
                             close(sNuevo);
@@ -124,7 +131,7 @@ int main(int argc, char const *argv[]) {
         }
         //UDP
         if(FD_ISSET(sUDP, &readmusk)) {
-            while(i) {
+            while(1) {
                 if(recvfrom(sUDP, respuesta, (sizeof(char) * MAX), 0, (struct sockaddr *)&clientnaddr, &tamDir) == -1) {
                     perror("Error al recibir la respuesta");
                     close(sUDP);
@@ -146,19 +153,32 @@ int main(int argc, char const *argv[]) {
 }
 
 void generarRespuesta(char *m, char *respuesta) {
-    if (strcmp(m, "HOLA\r\n") == 0) {
-        strcpy(respuesta, "250 pregunta#");
+    if (strcmp(m, "HOLA\r\n") == 0 && flagHola == 0) {
+        lineaAleatoria = leerLineaAleatoria(nombreArchivo);
+        lineaCopia = strdup(lineaAleatoria);
+        token = strtok(lineaCopia, "|");
+        pregunta = token;
+        token = strtok(NULL, "|");
+        numero = token;
+        sprintf(respuesta, "250 %s#", pregunta);
         flagHola = 1;
         return;
     } else if (flagHola == 0) {
         strcpy(respuesta, "500 Error de sintaxis");
         return;
     } else if (strcmp(m, "ADIOS\r\n") == 0 && flagHola == 1) {
+        flagHola = 0;
         strcpy(respuesta, "221 Cerrando el servicio");
-        i = 0;
         return;
     } else if (strcmp(m, "+\r\n") == 0 && flagHola == 1) {
-        strcpy(respuesta, "250 pregunta2#");
+        lineaAleatoria = leerLineaAleatoria(nombreArchivo);
+        lineaAleatoria = leerLineaAleatoria(nombreArchivo);
+        lineaCopia = strdup(lineaAleatoria);
+        token = strtok(lineaCopia, "|");
+        pregunta = token;
+        token = strtok(NULL, "|");
+        numero = token;
+        sprintf(respuesta, "250 %s#", pregunta);
         return;
     }
     char *campo = strtok(m, "\r\n");
@@ -166,15 +186,14 @@ void generarRespuesta(char *m, char *respuesta) {
         campo = strtok(campo, " ");
         campo = strtok(NULL, " ");
         int num = atoi(campo);
-        if (num < 50) {
+        if (num < atoi(numero)) {
             strcpy(respuesta, "354 MAYOR#");
             return;
-        } else if (num > 50) {
+        } else if (num > atoi(numero)) {
             strcpy(respuesta, "354 MENOR#");
             return;
-        } else if (num == 50) {
+        } else if (num == atoi(numero)) {
             strcpy(respuesta, "350 ACIERTO");
-            i = 0;
             return;
         }
     } else {
@@ -183,4 +202,45 @@ void generarRespuesta(char *m, char *respuesta) {
     }
     strcpy(respuesta, "500 Error de sintaxis");
     return;
+}
+
+char *leerLineaAleatoria(const char *nombreArchivo) {
+    FILE *archivo = fopen(nombreArchivo, "r");
+    if (archivo == NULL) {
+        perror("Error al abrir el archivo");
+        return NULL;
+    }
+
+    // Contar las líneas en el archivo
+    int numLineas = 0;
+    char c;
+    while ((c = fgetc(archivo)) != EOF) {
+        if (c == '\n') {
+            numLineas++;
+        }
+    }
+
+    // Generar un número aleatorio entre 1 y el número de líneas
+    int numAleatorio = rand() % numLineas + 1;
+
+    // Volver al principio del archivo
+    rewind(archivo);
+
+    // Leer la línea aleatoria
+    char *linea = NULL;
+    size_t len = 0;
+    ssize_t read;
+    int lineaActual = 0;
+
+    while ((read = getline(&linea, &len, archivo)) != -1) {
+        lineaActual++;
+        if (lineaActual == numAleatorio) {
+            // Quitar el salto de línea al final de la línea
+            linea[strcspn(linea, "\n")] = '\0';
+            break;
+        }
+    }
+
+    fclose(archivo);
+    return linea;
 }
