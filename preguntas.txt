@@ -46,3 +46,52 @@
 ¿Cuántos minutos hay en una jornada laboral de 8 horas?|480
 ¿Cuántos jugadores hay en un equipo de hockey sobre hielo en la pista al mismo tiempo?|6
 ¿Cuántos dígitos tiene el número de seguridad social en Estados Unidos?|9
+¿Cuántas letras tiene el alfabeto español?|27
+¿Cuántos ceros tiene un millón?|6
+¿Cuántos libros conforman la trilogía de "El Señor de los Anillos"?|3
+¿Cuántos jugadores hay en la piscina al mismo tiempo en un equipo de waterpolo?|7
+¿Cuántos ojos tiene una araña típica?|8
+¿Cuántos meses tienen 31 días?|7
+¿Cuántos jugadores componen un equipo de rugby en el campo al mismo tiempo?|15
+¿Cuántos dientes permanentes tiene un adulto promedio?|32
+¿Cuántas piezas conforman un rompecabezas típico de mil piezas?|1000
+¿Cuántos minutos hay en un cuarto de hora?|15
+¿Cuántos lados tiene un pentágono?|5
+¿Cuántos mandamientos hay en los Diez Mandamientos bíblicos?|10
+¿Cuántos planetas gaseosos hay en nuestro sistema solar?|4
+¿Cuántos vértices tiene una pirámide cuadrangular?|5
+¿Cuántos puntos hay en una estrella de cinco puntas?|5
+¿Cuántos elementos conforman un trío?|3
+¿Cuántos lados tiene un nonágono?|9
+¿Cuántos centavos hay en un dólar estadounidense?|100
+¿Cuántas teclas tiene un piano estándar?|88
+¿Cuántos jugadores hay en un equipo de cricket en el campo al mismo tiempo?|11
+¿Cuántos cuartos hay en un dólar estadounidense?|4
+¿Cuántos dientes permanentes tiene un niño promedio?|32
+¿Cuántos jugadores hay en un equipo de béisbol en el campo al mismo tiempo?|9
+¿Cuántos lados tiene un eneágono?|9
+¿Cuántos minutos hay en una jornada de 24 horas?|1440
+¿Cuántos lados tiene un cuadrilátero?|4
+¿Cuántos elementos conforman un sexteto?|6
+¿Cuántos días tiene un trimestre?|Aproximadamente 90
+¿Cuántos centímetros hay en un metro?|100
+¿Cuántos dígitos tiene un número de teléfono estadounidense?|10
+¿Cuántos elementos conforman un octeto?|8
+¿Cuántas patas tiene un insecto palo típico?|Varía, pero puede tener hasta 6 o más.
+¿Cuántos días tiene un año no bisiesto?|365
+¿Cuántos elementos conforman un septeto?|7
+¿Cuántas patas tiene un escorpión típico?|8
+¿Cuántos meses tienen 30 días?|11
+¿Cuántos lados tiene un octógono?|8
+¿Cuántos minutos hay en una hora y cuarto?|75
+¿Cuántos dígitos tiene el número de la bestia según la tradición bíblica?|3
+¿Cuántos elementos conforman un trío?|3
+¿Cuántas caras tiene un cubo mágico de 4x4?|24
+¿Cuántos lados tiene un decágono?|10
+¿Cuántas estaciones hay en el año?|4
+¿Cuántos elementos conforman un noneto?|9
+¿Cuántos minutos hay en una hora y media?|90
+¿Cuántos elementos conforman un dúo?|2
+¿Cuántas semanas hay en un año?|52
+¿Cuántos bits hay en un kilobit (Kb)?|1000
+¿Cuántos dígitos tiene el número de seguridad social en Estados Unidos?|9

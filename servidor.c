@@ -29,11 +29,13 @@ char *lineaCopia;
 char *token;
 char *pregunta;
 char *numero;
+int intentos;
 
 void generarRespuesta(char *m, char *respuesta);
 char *leerLineaAleatoria(const char *nombreArchivo);
 
 int main(int argc, char const *argv[]) {
+    srand(time(NULL));
     fd_set readmusk;
     int s_mayor;
     struct sockaddr_in servaddr, clientnaddr;
@@ -160,7 +162,8 @@ void generarRespuesta(char *m, char *respuesta) {
         pregunta = token;
         token = strtok(NULL, "|");
         numero = token;
-        sprintf(respuesta, "250 %s#", pregunta);
+        intentos = rand() % 45 + 5; //Entre 5 y 50
+        sprintf(respuesta, "250 %s#%d", pregunta, intentos);
         flagHola = 1;
         return;
     } else if (flagHola == 0) {
@@ -178,7 +181,8 @@ void generarRespuesta(char *m, char *respuesta) {
         pregunta = token;
         token = strtok(NULL, "|");
         numero = token;
-        sprintf(respuesta, "250 %s#", pregunta);
+        intentos = rand() % 45 + 5;
+        sprintf(respuesta, "250 %s#%d", pregunta, intentos);
         return;
     }
     char *campo = strtok(m, "\r\n");
@@ -186,13 +190,17 @@ void generarRespuesta(char *m, char *respuesta) {
         campo = strtok(campo, " ");
         campo = strtok(NULL, " ");
         int num = atoi(campo);
-        if (num < atoi(numero)) {
-            strcpy(respuesta, "354 MAYOR#");
+        if (num < atoi(numero) && intentos > 0) {
+            intentos--;
+            sprintf(respuesta, "354 MAYOR#%d", intentos);
+            //strcpy(respuesta, "354 MAYOR#");
             return;
-        } else if (num > atoi(numero)) {
-            strcpy(respuesta, "354 MENOR#");
+        } else if (num > atoi(numero) && intentos > 0) {
+            //strcpy(respuesta, "354 MENOR#");
+            intentos--;
+            sprintf(respuesta, "354 MENOR#%d", intentos);
             return;
-        } else if (num == atoi(numero)) {
+        } else if (num == atoi(numero) && intentos > 0) {
             strcpy(respuesta, "350 ACIERTO");
             return;
         }
