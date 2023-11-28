@@ -163,15 +163,15 @@ void generarRespuesta(char *m, char *respuesta) {
         token = strtok(NULL, "|");
         numero = token;
         intentos = rand() % 45 + 5; //Entre 5 y 50
-        sprintf(respuesta, "250 %s#%d", pregunta, intentos);
+        sprintf(respuesta, "250 %s#%d\r\n", pregunta, intentos);
         flagHola = 1;
         return;
     } else if (flagHola == 0) {
-        strcpy(respuesta, "500 Error de sintaxis");
+        strcpy(respuesta, "500 Error de sintaxis\r\n");
         return;
     } else if (strcmp(m, "ADIOS\r\n") == 0 && flagHola == 1) {
         flagHola = 0;
-        strcpy(respuesta, "221 Cerrando el servicio");
+        strcpy(respuesta, "221 Cerrando el servicio\r\n");
         return;
     } else if (strcmp(m, "+\r\n") == 0 && flagHola == 1) {
         lineaAleatoria = leerLineaAleatoria(nombreArchivo);
@@ -182,7 +182,7 @@ void generarRespuesta(char *m, char *respuesta) {
         token = strtok(NULL, "|");
         numero = token;
         intentos = rand() % 45 + 5;
-        sprintf(respuesta, "250 %s#%d", pregunta, intentos);
+        sprintf(respuesta, "250 %s#%d\r\n", pregunta, intentos);
         return;
     }
     char *campo = strtok(m, "\r\n");
@@ -190,25 +190,26 @@ void generarRespuesta(char *m, char *respuesta) {
         campo = strtok(campo, " ");
         campo = strtok(NULL, " ");
         int num = atoi(campo);
-        if (num < atoi(numero) && intentos > 0) {
+        if (intentos == 0) {
+            strcpy(respuesta, "375 FALLO\r\n");
+            return;
+        } else if (num < atoi(numero) && intentos > 0) {
             intentos--;
-            sprintf(respuesta, "354 MAYOR#%d", intentos);
-            //strcpy(respuesta, "354 MAYOR#");
+            sprintf(respuesta, "354 MAYOR#%d\r\n", intentos);
             return;
         } else if (num > atoi(numero) && intentos > 0) {
-            //strcpy(respuesta, "354 MENOR#");
             intentos--;
-            sprintf(respuesta, "354 MENOR#%d", intentos);
+            sprintf(respuesta, "354 MENOR#%d\r\n", intentos);
             return;
         } else if (num == atoi(numero) && intentos > 0) {
-            strcpy(respuesta, "350 ACIERTO");
+            strcpy(respuesta, "350 ACIERTO\r\n");
             return;
         }
     } else {
-        strcpy(respuesta, "500 Error de sintaxis");
+        strcpy(respuesta, "500 Error de sintaxis\r\n");
         return;
     }
-    strcpy(respuesta, "500 Error de sintaxis");
+    strcpy(respuesta, "500 Error de sintaxis\r\n");
     return;
 }
 

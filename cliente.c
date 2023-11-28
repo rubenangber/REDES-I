@@ -70,7 +70,7 @@ int main(int argc, char const *argv[]) {
             }
 
             printf("Respuesta: %s\n", respuesta);
-            if(strcmp(respuesta, "221 Cerrando el servicio") == 0 || strcmp(respuesta, "350 ACIERTO") == 0) {
+            if(strcmp(respuesta, "221 Cerrando el servicio\r\n") == 0) {
                 return 0;
             }
         }
@@ -139,14 +139,9 @@ int main(int argc, char const *argv[]) {
             }
 
             printf("Respuesta recibida: %s\n", respuesta);
-            if(strcmp(respuesta, "221 Cerrando el servicio") == 0 || strcmp(respuesta, "350 ACIERTO") == 0) {
+            if(strcmp(respuesta, "221 Cerrando el servicio\r\n") == 0) {
                 return 0;
             }
         }
-    } else {
-        printf("Uso: ./cliente TCP/UDP\n");
-        return 1;
     }
-    
-    return 0;
 }
