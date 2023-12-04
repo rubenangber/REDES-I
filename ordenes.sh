@@ -1,6 +1,7 @@
-./cliente TCP ordenes.txt &
-./cliente TCP ordenes1.txt &
-./cliente TCP ordenes2.txt &
-./cliente UDP ordenes.txt &
-./cliente UDP ordenes1.txt &
-./cliente UDP ordenes2.txt &
+./servidor
+./cliente nogal TCP ordenes.txt &
+./cliente nogal TCP ordenes1.txt &
+./cliente nogal TCP ordenes2.txt &
+./cliente nogal UDP ordenes.txt &
+./cliente nogal UDP ordenes1.txt &
+./cliente nogal UDP ordenes2.txt &

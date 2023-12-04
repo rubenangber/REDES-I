@@ -77,7 +77,7 @@
 ¿Cuántos centímetros hay en un metro?|100
 ¿Cuántos dígitos tiene un número de teléfono estadounidense?|10
 ¿Cuántos elementos conforman un octeto?|8
-¿Cuántas patas tiene un insecto palo típico?|Varía, pero puede tener hasta 6 o más.
+¿Cuántas patas tiene un insecto palo típico?|6
 ¿Cuántos días tiene un año no bisiesto?|365
 ¿Cuántos elementos conforman un septeto?|7
 ¿Cuántas patas tiene un escorpión típico?|8
