@@ -13,6 +13,7 @@
 
 #define MAX_LINE_LENGTH 256
 #define MAX 1024
+#define PORT 2050
 
 int sTCP, sUDP, sNuevo;
 void handler(int sigNum) {
@@ -42,13 +43,26 @@ int main(int argc, char const *argv[]) {
     socklen_t tamDir = sizeof(struct sockaddr_in);
     char respuesta[MAX], solicitud[MAX];
 
+    FILE *archivo = fopen("peticiones.log", "a");
+    if (archivo == NULL) {
+        perror("Error al abrir el archivo");
+        return 1;
+    }
+    //Fecha y hora actual
+    time_t tiempo_actual;
+    struct tm *info_tiempo;
+    char buffer[80];
+
+    time(&tiempo_actual);
+    info_tiempo = localtime(&tiempo_actual);
+
     //Dar valor al servaddr
     bzero(&servaddr, sizeof(servaddr));
     bzero(&clientnaddr, sizeof(clientnaddr));
 
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    servaddr.sin_port = htons(2050);
+    servaddr.sin_port = htons(PORT);
 
     //Crear socket sTCP --> socket
     sTCP = socket(AF_INET, SOCK_STREAM, 0);
@@ -63,6 +77,9 @@ int main(int argc, char const *argv[]) {
         close(sTCP);
         return 1;
     }
+
+    // Formatear la fecha y hora
+    strftime(buffer, sizeof(buffer), "%d/%m/%Y\t%H:%M:%S", info_tiempo);
 
     //Poner el sTCP en modo escucha --> listen
     if(listen(sTCP, 5) == -1) {
@@ -92,14 +109,36 @@ int main(int argc, char const *argv[]) {
         s_mayor = sUDP;
     }
 
+
+
+    /*
+    struct in_addr ip_addr = servaddr.sin_addr;
+
+    // Convierte la dirección IP de formato de red a formato de cadena
+    char ip_str[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &(ip_addr), ip_str, INET_ADDRSTRLEN);
+
+    // Imprime la dirección IP usando printf en lugar de fprintf
+    fprintf(archivo, "\n\n%s\n\n", ip_str);
+    struct in_addr ip_addr2 = clientnaddr.sin_addr;
+
+    // Convierte la dirección IP de formato de red a formato de cadena
+    char ip_str2[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &(ip_addr2), ip_str2, INET_ADDRSTRLEN);
+    fprintf(archivo, "\n\n%s\n\n", ip_str2);
+    */
+
+
     while(1) {
         FD_ZERO(&readmusk);
         FD_SET(sTCP, &readmusk);
         FD_SET(sUDP, &readmusk);
         if(select(s_mayor + 1, &readmusk, NULL, NULL, NULL) == -1) {
             //Error
+            perror("Error en el select");
             return 1;
         }
+
         if(FD_ISSET(sTCP, &readmusk)) { //TCP
             sNuevo = accept(sTCP,(struct sockaddr *) &clientnaddr, &tamDir);
             switch(fork()) {
@@ -110,20 +149,30 @@ int main(int argc, char const *argv[]) {
                 break;
                 case 0: 
                     close(sTCP);
-                    while (1) {
+                    int i = 1;
+                    fprintf(archivo, "\nConexion TCP realizada >> %s\n", buffer);
+                    fprintf(archivo, "Puerto local >> %d\nPuerto remoto >> %d\n", ntohs(servaddr.sin_port), ntohs(clientnaddr.sin_port));
+                    while (i) {
                         if(recv(sNuevo, respuesta, MAX, 0) == -1) {
                             perror("Error al recibir la respuesta");
                             close(sNuevo);
                             return 1;
                         }
+                        
                         printf("Respuesta: %s", respuesta);
+                        fprintf(archivo, "[C] %s", respuesta);
 
                         generarRespuesta(respuesta, solicitud);
+                        fprintf(archivo, "[S] %s", solicitud);
 
                         if(send(sNuevo, solicitud, strlen(solicitud), 0) == -1) {
                             perror("Error al enviar la respuesta");
                             close(sNuevo);
                             return 1;
+                        }
+                        if (strcmp(solicitud, "221 Cerrando el servicio\r\n") == 0) {
+                            close(sNuevo);
+                            i = 0;
                         }
                     }
                 break;
@@ -131,26 +180,87 @@ int main(int argc, char const *argv[]) {
                     close(sNuevo);
             }
         }
-        //UDP
-        if(FD_ISSET(sUDP, &readmusk)) {
-            while(1) {
-                if(recvfrom(sUDP, respuesta, (sizeof(char) * MAX), 0, (struct sockaddr *)&clientnaddr, &tamDir) == -1) {
-                    perror("Error al recibir la respuesta");
-                    close(sUDP);
-                    return 1;
-                }
-                printf("Respuesta: %s", respuesta);
 
-                generarRespuesta(respuesta, solicitud);
+        if(FD_ISSET(sUDP, &readmusk)) { //UDP
+            if(recvfrom(sUDP, respuesta, (sizeof(char) * MAX), 0, (struct sockaddr *)&clientnaddr, &tamDir) == -1) {
+                perror("Error al recibir la respuesta");
+                close(sUDP);
+                close(sNuevo);
+                return 1;
+            }
+            
+            sNuevo = socket(AF_INET, SOCK_DGRAM, 0);
+            if(sNuevo == -1) {
+                perror("Error al crear el socket UDP");
+                return 1;
+            }
+            
+            bzero(&servaddr, sizeof(servaddr));
+            servaddr.sin_family = AF_INET;
+            servaddr.sin_addr.s_addr = INADDR_ANY;
+            servaddr.sin_port = htons(0);
+            
+            if(bind(sNuevo, (struct sockaddr *)&servaddr, sizeof(struct sockaddr_in)) == -1) {
+                perror("Error al hacer bind");
+                close(sTCP);
+                close(sUDP);
+                return 1;
+            }
 
-                if(sendto(sUDP, solicitud, (sizeof(char) * MAX), 0, (struct sockaddr *)&clientnaddr, sizeof(clientnaddr)) == -1) {
-                    perror("Error al enviar la solicitud");
-                    close(sUDP);
+
+            switch (fork()) {
+                case -1:
+                    //Error
+                    perror("Error al crear el proceso hijo");
                     return 1;
-                }
+                break;
+
+                case 0:
+                    close(sUDP);
+                    int i = 1;
+                    fprintf(archivo, "\nConexion UDP realizada >> %s\n", buffer);
+                    fprintf(archivo, "Puerto local >> %d\nPuerto remoto >> %d\n", ntohs(servaddr.sin_port), ntohs(clientnaddr.sin_port));
+                    fprintf(archivo, "[C] %s", respuesta);
+                    generarRespuesta(respuesta, solicitud);
+                    fprintf(archivo, "[S] %s", solicitud);
+                    if(sendto(sNuevo, solicitud, (sizeof(char) * MAX), 0, (struct sockaddr *)&clientnaddr, sizeof(clientnaddr)) == -1) {
+                        perror("Error al enviar la solicitud");
+                        close(sNuevo);
+                        return 1;
+                    }
+                    if (strcmp(solicitud, "221 Cerrando el servicio\r\n") == 0) {
+                        close(sNuevo);
+                    }
+                    while(i) {
+                        if(recvfrom(sNuevo, respuesta, (sizeof(char) * MAX), 0, (struct sockaddr *)&clientnaddr, &tamDir) == -1) {
+                            perror("Error al recibir la respuesta");
+                            close(sNuevo);
+                            return 1;
+                        }
+                        printf("Respuesta: %s", respuesta);
+                        fprintf(archivo, "[C] %s", respuesta);
+
+                        generarRespuesta(respuesta, solicitud);
+                        fprintf(archivo, "[S] %s", solicitud);
+
+                        if(sendto(sNuevo, solicitud, (sizeof(char) * MAX), 0, (struct sockaddr *)&clientnaddr, sizeof(clientnaddr)) == -1) {
+                            perror("Error al enviar la solicitud");
+                            close(sNuevo);
+                            return 1;
+                        }
+                        if (strcmp(solicitud, "221 Cerrando el servicio\r\n") == 0) {
+                            close(sNuevo);
+                            i = 0;
+                        }
+                    }
+                break;
+
+                default:
+                    close(sNuevo);
             }
         }
     }
+    fclose(archivo);
     return 0;
 }
 

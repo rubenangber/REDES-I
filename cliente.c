@@ -49,9 +49,18 @@ int clienteTCP(const char *fichero) {
         perror("Error al crear el socket");
         return 1;
     }
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_INET;
+    char hostname[1024];
+    gethostname(hostname, sizeof(hostname));
+    if(getaddrinfo(hostname, NULL, &hints, &resultados) != 0) {
+        perror("Error al obtener la direccion");
+        close(s);
+        return 1;
+    }
     bzero(&dirLocal, sizeof(dirLocal));
     dirLocal.sin_family = AF_INET;
-    dirLocal.sin_addr.s_addr = htonl(INADDR_ANY);
+    dirLocal.sin_addr = ((struct sockaddr_in *) resultados->ai_addr)->sin_addr;
     dirLocal.sin_port = htons(2050);
     if(connect(s, (struct sockaddr *)&dirLocal, sizeof(dirLocal)) == -1) {
         perror("Error al conectar");
@@ -83,7 +92,7 @@ int clienteTCP(const char *fichero) {
             close(s);
             return 1;
         }
-        printf("Respuesta: %s\n", respuesta);
+        
         if(strcmp(respuesta, "221 Cerrando el servicio\r\n") == 0) {
             return 0;
         }
@@ -147,7 +156,7 @@ int clienteUDP(const char *fichero) {
             close(s);
             return 1;
         }
-        printf("Respuesta recibida: %s\n", respuesta);
+
         if(strcmp(respuesta, "221 Cerrando el servicio\r\n") == 0) {
             return 0;
         }
