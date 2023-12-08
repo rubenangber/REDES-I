@@ -7,6 +7,7 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
 #include <sys/errno.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -20,7 +21,7 @@
 
 #define MAX_LINE_LENGTH 256
 #define MAX 1024
-#define PORT 65414
+#define PORT 65412
 
 int sTCP, sUDP, sNuevo;
 FILE *archivo;
@@ -31,7 +32,8 @@ void handler(int sigNum) {
     close(sNuevo);
     
     fclose(archivo);
-    
+    while (waitpid(-1, NULL, WNOHANG) > 0) {}
+
     exit(0);
 }
 int flagHola = 0;
@@ -276,10 +278,11 @@ int main(int argc, char const *argv[]) {
         close(sTCP);
         close(s_mayor);
         fclose(archivo);
+        while (waitpid(-1, NULL, WNOHANG) > 0) {}
         return 0;
     break;
     }
-
+    while (waitpid(-1, NULL, WNOHANG) > 0) {}
     fclose(archivo);
     return 0;
 }
