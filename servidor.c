@@ -1,3 +1,10 @@
+/*
+** Fichero: servidor.c
+** Autores:
+** Rubén Angoso Berrocal DNI 70958754M
+** Óscar Hernández Hernández DNI 70918137Y
+*/
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/errno.h>
@@ -131,7 +138,6 @@ int main(int argc, char const *argv[]) {
         FD_SET(sUDP, &readmusk);
         if(select(s_mayor + 1, &readmusk, NULL, NULL, NULL) == -1) {
             //Error
-            perror("Error en el select");
             return 1;
         }
         strcpy(IPLocal, inet_ntoa(servaddr.sin_addr));
@@ -150,6 +156,7 @@ int main(int argc, char const *argv[]) {
                     fprintf(archivo, "\nConexion TCP realizada >> %s\n", buffer);
                     fprintf(archivo, "Puerto local >> %d\nPuerto remoto >> %d\n", ntohs(servaddr.sin_port), ntohs(clientnaddr.sin_port));
                     fprintf(archivo, "IP Local >> %s\nIP Remota >> %s\n", IPLocal, IPRemota);
+                    fprintf(archivo, "[S] %s", "220 Servicio preparado\r\n");
                     while (i) {
                         if(recv(sNuevo, respuesta, MAX, 0) == -1) {
                             perror("Error al recibir la respuesta");
@@ -221,6 +228,7 @@ int main(int argc, char const *argv[]) {
                     fprintf(archivo, "Puerto local >> %d\nPuerto remoto >> %d\n", ntohs(servaddr.sin_port), ntohs(clientnaddr.sin_port));
                     fprintf(archivo, "IP Local >> %s\nIP Remota >> %s\n", IPLocal, IPRemota);
 
+                    fprintf(archivo, "[S] %s", "220 Servicio preparado\r\n");
                     fprintf(archivo, "[C] %s", respuesta);
                     generarRespuesta(respuesta, solicitud);
                     fprintf(archivo, "[S] %s", solicitud);

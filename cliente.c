@@ -1,3 +1,10 @@
+/*
+** Fichero: cliente.c
+** Autores:
+** Rubén Angoso Berrocal DNI 70958754M
+** Óscar Hernández Hernández DNI 70918137Y
+*/
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/errno.h>
@@ -39,6 +46,9 @@ int main(int argc, char const *argv[]) {
         const char *nombreArchivo = argv[3];
         const char *hostname = argv[1];
         return clienteUDP(nombreArchivo, hostname);
+    } else {
+        printf("Uso: ./cliente <TCP o UDP> <ordenes.txt o ordenes1.txt o ordenes2.txt>\n");
+        return 1;
     }
 }
 
