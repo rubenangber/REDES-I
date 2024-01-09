@@ -19,7 +19,7 @@
 #include <unistd.h>
 
 #define MAX 1024
-#define PORT 65412
+#define PORT 33412
 
 int s;
 void handler(int sigNum) {
@@ -40,13 +40,11 @@ int main(int argc, char const *argv[]) {
         return 1;
     } else if (strcmp(argv[2], "TCP") == 0) {
         const char *nombreArchivo = argv[3];
-        //const char *hostname = argv[1];
-        const char *hostname = "localhost";
+        const char *hostname = "localhost";//argv[1];
         return clienteTCP(nombreArchivo, hostname);
     } else if (strcmp(argv[2], "UDP") == 0) {
         const char *nombreArchivo = argv[3];
-        //const char *hostname = argv[1];
-        const char *hostname = "localhost";
+        const char *hostname = "localhost";//argv[1];
         return clienteUDP(nombreArchivo, hostname);
     } else {
         printf("Uso: ./cliente <TCP o UDP> <ordenes.txt o ordenes1.txt o ordenes2.txt>\n");

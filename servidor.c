@@ -21,7 +21,7 @@
 
 #define MAX_LINE_LENGTH 256
 #define MAX 1024
-#define PORT 65412
+#define PORT 33412
 
 int sTCP, sUDP, sNuevo;
 FILE *archivo;
@@ -32,7 +32,7 @@ void handler(int sigNum) {
     close(sNuevo);
     
     fclose(archivo);
-    while (waitpid(-1, NULL, WNOHANG) > 0) {}
+    kill(0, SIGINT);
 
     exit(0);
 }
@@ -125,135 +125,115 @@ int main(int argc, char const *argv[]) {
     
     setpgrp();
     switch (fork()) {
-    case -1:
-        //ERROR
-        return 1;
-    break;
-    
-    case 0:
-        close(0);
-        close(1);
-        close(2);
-        while(1) {
-        FD_ZERO(&readmusk);
-        FD_SET(sTCP, &readmusk);
-        FD_SET(sUDP, &readmusk);
-        if(select(s_mayor + 1, &readmusk, NULL, NULL, NULL) == -1) {
-            //Error
+        case -1:
+            //ERROR
             return 1;
-        }
-        strcpy(IPLocal, inet_ntoa(servaddr.sin_addr));
-        if(FD_ISSET(sTCP, &readmusk)) { //TCP
-            sNuevo = accept(sTCP,(struct sockaddr *) &clientnaddr, &tamDir);
-            switch(fork()) {
-                case -1: 
-                    //Error
-                    perror("Error al crear el proceso hijo");
-                    return 1;
-                break;
-                case 0: 
-                    close(sTCP);
-                    int i = 1;
-                    strcpy(IPRemota, inet_ntoa(clientnaddr.sin_addr));
-                    fprintf(archivo, "\nConexion TCP realizada >> %s\n", buffer);
-                    fprintf(archivo, "Puerto local >> %d\nPuerto remoto >> %d\n", ntohs(servaddr.sin_port), ntohs(clientnaddr.sin_port));
-                    fprintf(archivo, "IP Local >> %s\nIP Remota >> %s\n", IPLocal, IPRemota);
-                    fprintf(archivo, "[S] %s", "220 Servicio preparado\r\n");
-                    while (i) {
-                        if(recv(sNuevo, respuesta, MAX, 0) == -1) {
-                            perror("Error al recibir la respuesta");
-                            close(sNuevo);
-                            return 1;
-                        }
-                        
-                        printf("Respuesta: %s", respuesta);
-                        fprintf(archivo, "[C] %s", respuesta);
+        break;
 
-                        generarRespuesta(respuesta, solicitud);
-                        fprintf(archivo, "[S] %s", solicitud);
-
-                        if(send(sNuevo, solicitud, strlen(solicitud), 0) == -1) {
-                            perror("Error al enviar la respuesta");
-                            close(sNuevo);
-                            return 1;
-                        }
-                        if (strcmp(solicitud, "221 Cerrando el servicio\r\n") == 0) {
-                            close(sNuevo);
-                            i = 0;
-                        }
-                    }
-                break;
-                default: 
-                    close(sNuevo);
-            }
-        }
-
-        if(FD_ISSET(sUDP, &readmusk)) { //UDP
-            if(recvfrom(sUDP, respuesta, (sizeof(char) * MAX), 0, (struct sockaddr *)&clientnaddr, &tamDir) == -1) {
-                perror("Error al recibir la respuesta");
-                close(sUDP);
-                close(sNuevo);
+        case 0:
+            close(0);
+            close(1);
+            close(2);
+            while(1) {
+            FD_ZERO(&readmusk);
+            FD_SET(sTCP, &readmusk);
+            FD_SET(sUDP, &readmusk);
+            if(select(s_mayor + 1, &readmusk, NULL, NULL, NULL) == -1) {
+                //Error
                 return 1;
             }
-            
-            sNuevo = socket(AF_INET, SOCK_DGRAM, 0);
-            if(sNuevo == -1) {
-                perror("Error al crear el socket UDP");
-                return 1;
-            }
-            
-            bzero(&servaddr, sizeof(servaddr));
-            servaddr.sin_family = AF_INET;
-            servaddr.sin_addr.s_addr = INADDR_ANY;
-            servaddr.sin_port = htons(0);
-            
-            if(bind(sNuevo, (struct sockaddr *)&servaddr, sizeof(struct sockaddr_in)) == -1) {
-                perror("Error al hacer bind");
-                close(sTCP);
-                close(sUDP);
-                return 1;
-            }
-
-
-            switch (fork()) {
-                case -1:
-                    //Error
-                    perror("Error al crear el proceso hijo");
-                    return 1;
-                break;
-
-                case 0:
-                    strcpy(IPRemota, inet_ntoa(clientnaddr.sin_addr));
-                    close(sUDP);
-                    int i = 1;
-                    fprintf(archivo, "\nConexion UDP realizada >> %s\n", buffer);
-                    fprintf(archivo, "Puerto local >> %d\nPuerto remoto >> %d\n", ntohs(servaddr.sin_port), ntohs(clientnaddr.sin_port));
-                    fprintf(archivo, "IP Local >> %s\nIP Remota >> %s\n", IPLocal, IPRemota);
-
-                    fprintf(archivo, "[S] %s", "220 Servicio preparado\r\n");
-                    fprintf(archivo, "[C] %s", respuesta);
-                    generarRespuesta(respuesta, solicitud);
-                    fprintf(archivo, "[S] %s", solicitud);
-                    if(sendto(sNuevo, solicitud, (sizeof(char) * MAX), 0, (struct sockaddr *)&clientnaddr, sizeof(clientnaddr)) == -1) {
-                        perror("Error al enviar la solicitud");
-                        close(sNuevo);
+            strcpy(IPLocal, inet_ntoa(servaddr.sin_addr));
+            if(FD_ISSET(sTCP, &readmusk)) { //TCP
+                sNuevo = accept(sTCP,(struct sockaddr *) &clientnaddr, &tamDir);
+                switch(fork()) {
+                    case -1: 
+                        //Error
+                        perror("Error al crear el proceso hijo");
                         return 1;
-                    }
-                    if (strcmp(solicitud, "221 Cerrando el servicio\r\n") == 0) {
-                        close(sNuevo);
-                    }
-                    while(i) {
-                        if(recvfrom(sNuevo, respuesta, (sizeof(char) * MAX), 0, (struct sockaddr *)&clientnaddr, &tamDir) == -1) {
-                            perror("Error al recibir la respuesta");
-                            close(sNuevo);
-                            return 1;
-                        }
-                        printf("Respuesta: %s", respuesta);
-                        fprintf(archivo, "[C] %s", respuesta);
+                    break;
+                    case 0: 
+                        close(sTCP);
+                        int i = 1;
+                        strcpy(IPRemota, inet_ntoa(clientnaddr.sin_addr));
+                        fprintf(archivo, "\nConexion TCP realizada >> %s\n", buffer);
+                        fprintf(archivo, "Puerto local >> %d\nPuerto remoto >> %d\n", ntohs(servaddr.sin_port), ntohs(clientnaddr.sin_port));
+                        fprintf(archivo, "IP Local >> %s\nIP Remota >> %s\n", IPLocal, IPRemota);
+                        fprintf(archivo, "[S] %s", "220 Servicio preparado\r\n");
+                        while (i) {
+                            if(recv(sNuevo, respuesta, MAX, 0) == -1) {
+                                perror("Error al recibir la respuesta");
+                                close(sNuevo);
+                                return 1;
+                            }
 
+                            printf("Respuesta: %s", respuesta);
+                            fprintf(archivo, "[C] %s", respuesta);
+
+                            generarRespuesta(respuesta, solicitud);
+                            fprintf(archivo, "[S] %s", solicitud);
+
+                            if(send(sNuevo, solicitud, strlen(solicitud), 0) == -1) {
+                                perror("Error al enviar la respuesta");
+                                close(sNuevo);
+                                return 1;
+                            }
+                            if (strcmp(solicitud, "221 Cerrando el servicio\r\n") == 0) {
+                                close(sNuevo);
+                                i = 0;
+                            }
+                        }
+                    break;
+                    default: 
+                        close(sNuevo);
+                }
+            }
+
+            if(FD_ISSET(sUDP, &readmusk)) { //UDP
+                if(recvfrom(sUDP, respuesta, (sizeof(char) * MAX), 0, (struct sockaddr *)&clientnaddr, &tamDir) == -1) {
+                    perror("Error al recibir la respuesta");
+                    close(sUDP);
+                    close(sNuevo);
+                    return 1;
+                }
+
+                sNuevo = socket(AF_INET, SOCK_DGRAM, 0);
+                if(sNuevo == -1) {
+                    perror("Error al crear el socket UDP");
+                    return 1;
+                }
+
+                bzero(&servaddr, sizeof(servaddr));
+                servaddr.sin_family = AF_INET;
+                servaddr.sin_addr.s_addr = INADDR_ANY;
+                servaddr.sin_port = htons(0);
+
+                if(bind(sNuevo, (struct sockaddr *)&servaddr, sizeof(struct sockaddr_in)) == -1) {
+                    perror("Error al hacer bind");
+                    close(sTCP);
+                    close(sUDP);
+                    return 1;
+                }
+
+
+                switch (fork()) {
+                    case -1:
+                        //Error
+                        perror("Error al crear el proceso hijo");
+                        return 1;
+                    break;
+
+                    case 0:
+                        strcpy(IPRemota, inet_ntoa(clientnaddr.sin_addr));
+                        close(sUDP);
+                        int i = 1;
+                        fprintf(archivo, "\nConexion UDP realizada >> %s\n", buffer);
+                        fprintf(archivo, "Puerto local >> %d\nPuerto remoto >> %d\n", ntohs(servaddr.sin_port), ntohs(clientnaddr.sin_port));
+                        fprintf(archivo, "IP Local >> %s\nIP Remota >> %s\n", IPLocal, IPRemota);
+
+                        fprintf(archivo, "[S] %s", "220 Servicio preparado\r\n");
+                        fprintf(archivo, "[C] %s", respuesta);
                         generarRespuesta(respuesta, solicitud);
                         fprintf(archivo, "[S] %s", solicitud);
-
                         if(sendto(sNuevo, solicitud, (sizeof(char) * MAX), 0, (struct sockaddr *)&clientnaddr, sizeof(clientnaddr)) == -1) {
                             perror("Error al enviar la solicitud");
                             close(sNuevo);
@@ -261,28 +241,48 @@ int main(int argc, char const *argv[]) {
                         }
                         if (strcmp(solicitud, "221 Cerrando el servicio\r\n") == 0) {
                             close(sNuevo);
-                            i = 0;
                         }
-                    }
-                break;
+                        while(i) {
+                            if(recvfrom(sNuevo, respuesta, (sizeof(char) * MAX), 0, (struct sockaddr *)&clientnaddr, &tamDir) == -1) {
+                                perror("Error al recibir la respuesta");
+                                close(sNuevo);
+                                return 1;
+                            }
+                            printf("Respuesta: %s", respuesta);
+                            fprintf(archivo, "[C] %s", respuesta);
 
-                default:
-                    close(sNuevo);
+                            generarRespuesta(respuesta, solicitud);
+                            fprintf(archivo, "[S] %s", solicitud);
+
+                            if(sendto(sNuevo, solicitud, (sizeof(char) * MAX), 0, (struct sockaddr *)&clientnaddr, sizeof(clientnaddr)) == -1) {
+                                perror("Error al enviar la solicitud");
+                                close(sNuevo);
+                                return 1;
+                            }
+                            if (strcmp(solicitud, "221 Cerrando el servicio\r\n") == 0) {
+                                close(sNuevo);
+                                i = 0;
+                            }
+                        }
+                    break;
+
+                    default:
+                        close(sNuevo);
+                }
             }
         }
-    }
-    break;
+        kill(0, SIGINT);
+        break;
 
-    default:
-        close(sUDP);
-        close(sTCP);
-        close(s_mayor);
-        fclose(archivo);
-        while (waitpid(-1, NULL, WNOHANG) > 0) {}
-        return 0;
-    break;
+        default:
+            close(sUDP);
+            close(sTCP);
+            close(s_mayor);
+            fclose(archivo);
+            return 0;
+        break;
     }
-    while (waitpid(-1, NULL, WNOHANG) > 0) {}
+
     fclose(archivo);
     return 0;
 }
